@@ -1,0 +1,369 @@
+#pragma version 8
+txn ApplicationID
+int 0
+==
+bnz main_l28
+txn OnCompletion
+int OptIn
+==
+bnz main_l27
+txn OnCompletion
+int CloseOut
+==
+txn OnCompletion
+int UpdateApplication
+==
+||
+txn OnCompletion
+int DeleteApplication
+==
+||
+bnz main_l26
+txn OnCompletion
+int NoOp
+==
+bnz main_l5
+err
+main_l5:
+txna ApplicationArgs 0
+byte "addSupportToken"
+==
+bnz main_l25
+txna ApplicationArgs 0
+byte "postSwap"
+==
+bnz main_l21
+txna ApplicationArgs 0
+byte "bondSwap"
+==
+bnz main_l20
+txna ApplicationArgs 0
+byte "executeSwap"
+==
+bnz main_l10
+err
+main_l10:
+txna ApplicationArgs 1
+box_get
+store 5
+store 4
+load 5
+assert
+load 4
+store 3
+load 3
+byte 0x1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+!=
+int 1
+&&
+assert
+txna ApplicationArgs 1
+extract 21 5
+btoi
+txn FirstValidTime
+int 3600
++
+<
+bnz main_l19
+txna ApplicationArgs 1
+byte 0x1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+box_put
+main_l12:
+txna ApplicationArgs 4
+btoi
+bnz main_l18
+txna ApplicationArgs 1
+extract 31 1
+btoi
+int 32
+>
+txna ApplicationArgs 1
+extract 31 1
+btoi
+int 255
+<
+&&
+int 1
+==
+bnz main_l17
+txna ApplicationArgs 1
+extract 1 5
+btoi
+store 6
+main_l15:
+itxn_begin
+int axfer
+itxn_field TypeEnum
+byte "EnumIndex:"
+txna ApplicationArgs 1
+extract 31 1
+btoi
+itob
+concat
+app_global_get
+itxn_field XferAsset
+load 3
+extract 32 32
+itxn_field AssetReceiver
+load 6
+itxn_field AssetAmount
+itxn_submit
+main_l16:
+int 1
+return
+main_l17:
+txna ApplicationArgs 1
+extract 1 5
+btoi
+int 1000000000000
+*
+store 6
+b main_l15
+main_l18:
+load 3
+extract 32 32
+byte "MesonLP:"
+byte "EnumIndex:"
+txna ApplicationArgs 1
+extract 31 1
+btoi
+itob
+concat
+app_global_get
+itob
+concat
+load 3
+extract 32 32
+byte "MesonLP:"
+byte "EnumIndex:"
+txna ApplicationArgs 1
+extract 31 1
+btoi
+itob
+concat
+app_global_get
+itob
+concat
+app_local_get
+txna ApplicationArgs 1
+extract 1 5
+btoi
++
+app_local_put
+b main_l16
+main_l19:
+txna ApplicationArgs 1
+box_del
+assert
+b main_l12
+main_l20:
+txna ApplicationArgs 1
+box_get
+store 2
+store 1
+load 2
+assert
+load 1
+extract 32 32
+byte 0x0000000000000000000000000000000000000000000000000000000000000000
+==
+assert
+txna ApplicationArgs 1
+int 32
+txn Sender
+box_replace
+int 1
+return
+main_l21:
+txna ApplicationArgs 1
+extract 29 2
+btoi
+int 283
+==
+txna ApplicationArgs 1
+extract 0 1
+btoi
+int 1
+==
+&&
+txna ApplicationArgs 1
+extract 1 5
+btoi
+int 100000000000
+<
+&&
+txna ApplicationArgs 1
+extract 21 5
+btoi
+txn FirstValidTime
+-
+int 3600
+>
+&&
+txna ApplicationArgs 1
+extract 21 5
+btoi
+txn FirstValidTime
+-
+int 7200
+<
+&&
+int 1
+&&
+txna ApplicationArgs 1
+extract 1 5
+btoi
+int 0
+>
+assert
+txna ApplicationArgs 1
+extract 31 1
+btoi
+int 32
+>
+txna ApplicationArgs 1
+extract 31 1
+btoi
+int 255
+<
+&&
+int 1
+==
+bnz main_l24
+txna ApplicationArgs 1
+extract 1 5
+btoi
+store 0
+main_l23:
+int 1
+gtxns TypeEnum
+int axfer
+==
+int 1
+gtxns Sender
+txn Sender
+==
+&&
+int 1
+gtxns AssetReceiver
+global CurrentApplicationAddress
+==
+&&
+int 1
+gtxns XferAsset
+byte "EnumIndex:"
+txna ApplicationArgs 1
+extract 31 1
+btoi
+itob
+concat
+app_global_get
+==
+&&
+int 1
+gtxns AssetAmount
+txna ApplicationArgs 1
+extract 1 5
+btoi
+==
+&&
+&&
+assert
+txna ApplicationArgs 1
+int 65
+box_create
+assert
+txna ApplicationArgs 1
+txn Sender
+byte 0x0000000000000000000000000000000000000000000000000000000000000000
+concat
+txna ApplicationArgs 1
+extract 31 1
+btoi
+itob
+extract 7 1
+concat
+box_put
+int 1
+return
+main_l24:
+txna ApplicationArgs 1
+extract 1 5
+btoi
+int 1000000000000
+*
+store 0
+b main_l23
+main_l25:
+txna ApplicationArgs 1
+btoi
+int 256
+<
+assert
+txna ApplicationArgs 1
+btoi
+int 0
+!=
+assert
+txna Assets 0
+int 0
+!=
+assert
+byte "EnumIndex:"
+txna ApplicationArgs 1
+btoi
+itob
+concat
+app_global_get
+int 0
+==
+assert
+byte "TokenIndex:"
+txna Assets 0
+itob
+concat
+app_global_get
+int 0
+==
+assert
+byte "EnumIndex:"
+txna ApplicationArgs 1
+btoi
+itob
+concat
+txna Assets 0
+app_global_put
+byte "TokenIndex:"
+txna Assets 0
+itob
+concat
+txna ApplicationArgs 1
+btoi
+app_global_put
+byte "ProtocolFee:"
+txna Assets 0
+itob
+concat
+int 0
+app_global_put
+itxn_begin
+int axfer
+itxn_field TypeEnum
+txna Assets 0
+itxn_field XferAsset
+global CurrentApplicationAddress
+itxn_field AssetReceiver
+int 0
+itxn_field AssetAmount
+itxn_submit
+int 1
+return
+main_l26:
+int 0
+return
+main_l27:
+int 1
+return
+main_l28:
+int 1
+return
